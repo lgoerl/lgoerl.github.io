@@ -21,17 +21,17 @@
 
             <aside id="featured" class="body">
                 <article>
-                    <h1 class="entry-title"><a href="https://lgoerl.github.io/hello-world.html">Hello World</a></h1>
+                    <h1 class="entry-title"><a href="https://lgoerl.github.io/suncode-hackathon.html">SunCode Hackathon 2017</a></h1>
 <footer class="post-info">
-        <abbr class="published" title="2017-04-04T16:21:00-07:00">
-                Published: Tue 04 April 2017
+        <abbr class="published" title="2017-04-09T08:21:00-07:00">
+                Published: Sun 09 April 2017
         </abbr>
 
         <address class="vcard author">
-                By                         <a class="url fn" href="https://lgoerl.github.io/author/me.html">me</a>
+                By                         <a class="url fn" href="https://lgoerl.github.io/author/lee-goerl.html">Lee Goerl</a>
         </address>
 <p>In <a href="https://lgoerl.github.io/category/posts.html">posts</a>.</p>
-<p>tags: <a href="https://lgoerl.github.io/tag/personal.html">personal</a> </p>
+<p>tags: <a href="https://lgoerl.github.io/tag/personal.html">personal</a> <a href="https://lgoerl.github.io/tag/projects.html">projects</a> </p>
 </footer><!-- /.post-info --><style type="text/css">/*!
 *
 * IPython notebook
@@ -1009,9 +1009,74 @@ h6:hover .anchor-link {
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Hello-World!">Hello World!<a class="anchor-link" href="#Hello-World!">¶</a></h2><p><br /></p>
-<p>If you haven't gathered from the ubiquitious title, this is my first post.</p>
-<p>I hope to use this blog to write about my professional journey, as I make the transition from my previous life in academia to the private sector-- and the world of data science-- and the inevitable personal life events and reflection that happens in between.</p>
+<h1 id="The-Myth-of-Clean-Coal">The Myth of Clean Coal<a class="anchor-link" href="#The-Myth-of-Clean-Coal">¶</a></h1><h4 id="links">links<a class="anchor-link" href="#links">¶</a></h4><ul>
+<li><a href="https://github.com/BBischof/suncode-hackathon">github</a> </li>
+<li><a href="https://devpost.com/software/clean-coal-ljti0z">devpost</a></li>
+</ul>
+<p>  This weekend (Friday and Saturday, April 8th) I participated in <a href="https://suncode2017.devpost.com/">Powerhouse's SunCode 2017 Hackathon</a> in a team of 5: engineers Bryan Bischof and Jeff Larson, and industry professionals Caroline Whittinghill and Geoff Cotter. To moderate amusement and confusion of the rest of the room, we named ourselves CLEAN COAL - you know, the joke. This was my first hackathon, so I didn't really have any expectations, but to save you the suspense, I did leave pretty disappointed. Also, exhausted, smelly, and very dehydrated.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>   Powerhouse's sponsors for the event, <a href="https://www.dsm.com/corporate/about/business-entities/dsm-venturing.html">DSM</a> and <a href="https://www.sunrun.com/">Sunrun</a> both issued two of their own challenges, and Powerhouse issued one, which can be found on the event page above. Many teams came up with really creative projects to work on outside the scope of these challenges -- one team attempted to develop a completely novel power generation process using gravitational wave! -- and I believe 3rd place and honerable mentions were won by such teams, but the real money went to teams that addressed the challenges put forth by the judges, as did we.</p>
+<p>   Our team tackled Powerhouse's challenge. Put in their own words:</p>
+<h4 id=""-Batteries-are-being-installed-at-a-rapid-rate-as-part-of-solar-systems.-Create-an-algorithm-or-machine-learning-routine-that-will-maximize-customer-benefit-in-a-variable-TOU-rate-situation-while-also-maximizing-battery-lifespan.--"">" Batteries are being installed at a rapid rate as part of solar systems. Create an algorithm or machine learning routine that will maximize customer benefit in a variable TOU rate situation while also maximizing battery lifespan.  "<a class="anchor-link" href="#"-Batteries-are-being-installed-at-a-rapid-rate-as-part-of-solar-systems.-Create-an-algorithm-or-machine-learning-routine-that-will-maximize-customer-benefit-in-a-variable-TOU-rate-situation-while-also-maximizing-battery-lifespan.--"">¶</a></h4><p>This challenge easily showcased our teams talents and skillset the best out of the five, and seemed legitimately interesting. Though it was against the rules to code anything before the event officially started on Firday evening, since we had a team made up before the event and decided on a challenge, we met a few days early and had Caroline and Josh melt our faces off with a bombardment of technical jargon. That night we laid down an approach that would end up utilizing more data than we actually could during the competition -- which isn't that surprising.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><a href="https://lgoerl.github.io/images/sunrun_model.jpg">Clean Coal model</a></p>
+<h4 id="Approach">Approach<a class="anchor-link" href="#Approach">¶</a></h4><p>   Our (super optimistic) goal is pictured in the above diagram. In words, we're making a controller to decide when to charge and discharge the batteries, and where to send the power when they are discharged. 
+We would build two daily forecasters:</p>
+<ul>
+<li>one for energy demand, and </li>
+<li>one for production from a PhotoVoltaic installation. 
+We'd also have data on battery usage, which we would use to build a model for battery life and usage*. </li>
+</ul>
+<p>   Power from the grid must be paid for, and the price is determined by the Time Of Use plan used by the power company. Generally, power is more expensive during the day, during peak hours, and less expensive at other times. The algorithm will be optimized both to save the most money by utilizing stored power from the batteries during the day and charging them during the off-peak hours, while also avoiding putting undue stress on the batteries to prolong life as long as possible.</p>
+<p>*This model is to address the fact that batteries' maximum charge capacity degrades over time, depending on charge and discharge rates, and charge/discharge cycles, while may be at odds with optimized use practices if only considering saving money by discharing during the peak TOU periods.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="In-reality">In reality<a class="anchor-link" href="#In-reality">¶</a></h4><p>   Unfortunately we couldn't actually implement everything in our plan, as should be expected. Problems we encountered mostly boiled down to not having enough time. Though we also couldn't find some of the data re: batteries that we expected to find. We did, however, find some estimated degredation models.</p>
+<p>   In the end, we only got a naive model completed. But, due to the testing we did, it worked and didn't leave us with nothing. It even saved a little money on some of the test cases for which we did have data, over not using any battery power at all. This was despite the fact that we only had them charging during PV over-production, which in itself is a pretty uncommon occurance, especially in commercial applications.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="What-I-contributed">What I contributed<a class="anchor-link" href="#What-I-contributed">¶</a></h4><ul>
+<li>implemented the function to map timestamps to the corresponding TOU plan rate</li>
+<li>helped with development, coding, and trouble-shooting/debugging the controller algorithm</li>
+<li>wrote tests for the algorithm</li>
+<li>some auxillary helper functions</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="Final-thoughts">Final thoughts<a class="anchor-link" href="#Final-thoughts">¶</a></h4><p>   At the start of the entry, you'll remember I said that I was a little disappointed. This is because the winning team (\$4000, and a company, maybe?) was effectively the only other team that attempted the same challenge. They didn't have a controller built, but they had done a better job presenting the idea to the judges by framing the software as a monetizable product, and giving estimates of how much its implementation would save a customer. There was no need for proof of concept, as there are several companies attempting to provide such a product, and though we didn't have an estimate of saved costs since our algorithm was so naive, we could have done more research on those companies and used their estimates for customer savings. It's frustrating to have gone into it knowing that such an aspect would be emphasized in the judgement of the pitches, and I felt like just another out-of-touch engineer or math nerd getting lost in the details until it was too late to even weild my depleted brain-power thinking of such a simple approach to obtaining this estimate (our plan was to get an estimate from the actual performance of the algorithm, which was too naive to provide anything more than $200/yr in savings -- obviously negligible for a commercial entity).</p>
+<p>   Despite being shown up at our own game by another team - the winning team, granted - the event was a lot of fun. My team was filled with badasses, and just plain cool people, and I feel very lucky to have had the opportunity to hang out with those people, but especially in a space wherein we could collaborate on solving a super interesting problem. Caroline and Geoff said they felt useless, but there are no doubts from the developer side that we would have been able to make anything coherent or appropriate in any way without their help.</p>
 </div>
 </div>
 </div>
@@ -1046,6 +1111,42 @@ h6:hover .anchor-link {
 </script>
                 </article>
             </aside><!-- /#featured -->
+                <section id="content" class="body">
+                    <h1>Other articles</h1>
+                    <hr />
+                    <ol id="posts-list" class="hfeed">
+
+            <li><article class="hentry">
+                <header>
+                    <h1><a href="https://lgoerl.github.io/hello-world.html" rel="bookmark"
+                           title="Permalink to Hello World">Hello World</a></h1>
+                </header>
+
+                <div class="entry-content">
+<footer class="post-info">
+        <abbr class="published" title="2017-04-04T16:21:00-07:00">
+                Published: Tue 04 April 2017
+        </abbr>
+
+        <address class="vcard author">
+                By                         <a class="url fn" href="https://lgoerl.github.io/author/lee-goerl.html">Lee Goerl</a>
+        </address>
+<p>In <a href="https://lgoerl.github.io/category/posts.html">posts</a>.</p>
+<p>tags: <a href="https://lgoerl.github.io/tag/personal.html">personal</a> </p>
+</footer><!-- /.post-info -->                
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Hello-World!">Hello World!<a class="anchor-link" href="#Hello-World!">¶</a></h2><p><br /></p>
+<p>If you haven't gathered from the ubiquitious title, this is my first post.</p>
+<p>I hope to use this blog to write about my professional journey, as I make the transition from my previous life in academia to the private sector-- and the world of data science-- and the inevitable personal life events and reflection that happens in between.</p>
+                <a class="readmore" href="https://lgoerl.github.io/hello-world.html">read more</a>
+                </div><!-- /.entry-content -->
+            </article></li>
+                </ol><!-- /#posts-list -->
+                </section><!-- /#content -->
         <section id="extras" class="body">
                 <div class="blogroll">
                         <h2>blogroll</h2>
