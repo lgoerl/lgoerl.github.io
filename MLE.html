@@ -23,7 +23,7 @@
   <article>
     <header>
       <h1 class="entry-title">
-        <a href="https://lgoerl.github.io/blog/2017/MLE.html" rel="bookmark"
+        <a href="https://lgoerl.github.io/MLE.html" rel="bookmark"
            title="Permalink to MAXIMUM Likelihood">MAXIMUM Likelihood</a></h1>
     </header>
 
@@ -1029,8 +1029,8 @@ h6:hover .anchor-link {
 <p>In the ML framework, I believe one searches through the <em>hypothesis set</em> for the <em>true predictor</em>.</p>
 <h2 id="Maximum-Likelihood-Estimation">Maximum Likelihood Estimation<a class="anchor-link" href="#Maximum-Likelihood-Estimation">¶</a></h2><p>In each framework - statistics or machine learning - there are typically an infinite number of possibilities for the true value of the population parameter to take. This means, then, that there are an infinite number of candidates to search through and consider. Since, obviously, the true value is unknown, there must be some method of finding and evaluating candidates. MLE is one such method.</p>
 <p>MLE is a parametric method, meaning it relies on assuming that the data in the sample (the training data) are drawn from a distribution. Furthermore, it assumes that the draws are independent of one another. In statistics it would be said that the sample is IID ~ Independent and Identically Distributed (according to some parametric distribution). Note that: <em>parametric distribution</em> - these are exactly the parameters we are attempting to estimate - the parameters governing the random variable distribution producing the observations in our sample (training data). You see now that the assumption of an underlying probability distribution function is integral to how this method of parameter estimation works. At least, theoretically. Let's make that a little more concrete.</p>
-<p>Suppose we have evidence* that our sample $S={x_1,...,x_n}$ is a collection of iid observations of a random variable $X~D$ where $D$ has a probability distribution function $f(x|\theta)$, where $\theta=(\theta_1,...,\theta_k)$ are the parameters of the distribution. (eg for the normal distribution, $\theta=(\mu,\sigma)$, and for the Bernoulli distribution, $\theta=p$)</p>
-<p>The MLE method considers the probability (likelihood) of obtaining the values that were obtained in the sample, given that they were drawn from this distribution. The way to do this is with the joint probability distribution, which considers all of the random variables together, including any dependence: $f(x_1,...,x_n|\theta)$. Luckily, we're using the iid assumption, and thus the joint pdf is just the product of the individual ones. Quite naturally, we can consider this a function of $\theta$, refered to as a <em>likelihood function</em> or a <em>loss function.</em></p>
+<p>Suppose we have evidence* that our sample $S=\{ x_1,...,x_n\}$ is a collection of IID observations of a random variable $X\sim D$ where $D$ has a probability distribution function $f(x|\theta)$, where $\theta=(\theta_1,...,\theta_k)$ are the parameters of the distribution. (eg for the normal distribution, $\theta=(\mu,\sigma)$, and for the Bernoulli distribution, $\theta=p$)</p>
+<p>The MLE method considers the probability (likelihood) of obtaining the values that were obtained in the sample, given that they were drawn from this distribution. The way to do this is with the joint probability distribution, which considers all of the random variables together, including any dependence: $f(x_1,...,x_n|\theta)$. Luckily, we're using the IID assumption, and thus the joint pdf is just the product of the individual ones. Quite naturally, we can consider this a function of $\theta$, refered to as a <em>likelihood function</em> or a <em>loss function.</em></p>
 <blockquote><p>$L_{S,D}(\theta|x)=f(x_1,...,x_n|\theta)=\prod_{i=1}^n f(x_i|\theta).$</p>
 </blockquote>
 <p>The idea is then to find the values for $\theta_j$ which maximize this function (maximize the likelihood of the observations coming from the distribution governed by these parameters). The reduction to a maximization problem introduces a whole host of applied mathematics methods, mostly stemming from calculus (duh, maximization). One extremely common method is to apply a logarithmic transformation to the likelihood function, since a) this transformation has even parity (if a value for $\theta$ maximizes $L_{S,D}(\theta|x)$, then the same value maximizes $\log(L_{S,D}(\theta|x))$), and b) actually allows us access to $\theta$ in the equation. Thus, the <em>log likelihood</em> is given as</p>
@@ -1044,10 +1044,10 @@ h6:hover .anchor-link {
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="An-example">An example<a class="anchor-link" href="#An-example">¶</a></h2><p>If you're asked to use the MLE method to estimate a parameter in an interview or on an exam, it will typically not be one requiring tedious mathematics. An adequate example to display your understanding is found in the Bernoulli random variable. Recall that $X~Bern(p)$ has pdf $f(x)=p^x(1-p)^{1-x}$, where $x\in {0,1}$. Thus,</p>
+<h2 id="An-example">An example<a class="anchor-link" href="#An-example">¶</a></h2><p>If you're asked to use the MLE method to estimate a parameter in an interview or on an exam, it will typically not be one requiring tedious mathematics. An adequate example to display your understanding is found in the Bernoulli random variable. Recall that $X\sim \text{Bernoulli}(p)$ has pdf $f(x)=p^x(1-p)^{1-x}$, where $x\in {0,1}$. Thus,</p>
 <blockquote><p>$L_{S,D}(p|x) = \prod_{i=1}^n p^{x_i}(1-p)^{1-x_i} = p^{\sum x_i}(1-p)^{n-\sum x_i}$,</p>
 <p>$\log(L_{S,D}(p|x))=\log(p^{\sum x_i}(1-p)^{n-\sum x_i})=(\sum x_i)\log(p)+(n-\sum x_i)\log(1-p)$, and</p>
-<p>$\frac{d}{dp}\log(L_{S,D}(p|x))=\frac{\sum x_i}{p}-\frac{n-\sum x_i}{1-p}=0$,</p>
+<p>$\frac{d}{dp}\log( L_{S,D}(p|x))=\frac{\sum x_i}{p}-\frac{n-\sum x_i}{1-p}=0$,</p>
 </blockquote>
 <p>thus, cross-multiplying by denomenators to obtain the least common demoninator</p>
 <blockquote><p>$\sum x_i-p\sum x_i -pn + p\sum x_i = 0.$</p>
@@ -1068,7 +1068,7 @@ You may wish to check that, in the example above,</p>
 <li>$Var(\frac{\sum x_i}{n}) = \frac{p(1-p)}{n}$</li>
 </ul>
 <p><em>hints</em></p>
-<p>For $X~Bernoulli(p)$</p>
+<p>For $X\sim \text{Bernoulli}(p)$</p>
 <ul>
 <li>$E[X] = p$</li>
 <li>$Var(X) = p(1-p)$</li>

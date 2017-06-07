@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>Data and science</title><link href="https://lgoerl.github.io/" rel="alternate"></link><link href="https://lgoerl.github.io/feeds/posts.atom.xml" rel="self"></link><id>https://lgoerl.github.io/</id><updated>2017-06-06T10:37:00-07:00</updated><entry><title>MAXIMUM Likelihood</title><link href="https://lgoerl.github.io/blog/2017/MLE.html" rel="alternate"></link><published>2017-06-06T10:37:00-07:00</published><updated>2017-06-06T10:37:00-07:00</updated><author><name>me</name></author><id>tag:lgoerl.github.io,2017-06-06:blog/2017/MLE.html</id><summary type="html">&lt;style type="text/css"&gt;/*!
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Data and science</title><link href="https://lgoerl.github.io/" rel="alternate"></link><link href="https://lgoerl.github.io/feeds/posts.atom.xml" rel="self"></link><id>https://lgoerl.github.io/</id><updated>2017-06-06T10:37:00-07:00</updated><entry><title>MAXIMUM Likelihood</title><link href="https://lgoerl.github.io/MLE.html" rel="alternate"></link><published>2017-06-06T10:37:00-07:00</published><updated>2017-06-06T10:37:00-07:00</updated><author><name>me</name></author><id>tag:lgoerl.github.io,2017-06-06:MLE.html</id><summary type="html">&lt;style type="text/css"&gt;/*!
 *
 * IPython notebook
 *
@@ -990,8 +990,8 @@ h6:hover .anchor-link {
 &lt;p&gt;In the ML framework, I believe one searches through the &lt;em&gt;hypothesis set&lt;/em&gt; for the &lt;em&gt;true predictor&lt;/em&gt;.&lt;/p&gt;
 &lt;h2 id="Maximum-Likelihood-Estimation"&gt;Maximum Likelihood Estimation&lt;a class="anchor-link" href="#Maximum-Likelihood-Estimation"&gt;¶&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;In each framework - statistics or machine learning - there are typically an infinite number of possibilities for the true value of the population parameter to take. This means, then, that there are an infinite number of candidates to search through and consider. Since, obviously, the true value is unknown, there must be some method of finding and evaluating candidates. MLE is one such method.&lt;/p&gt;
 &lt;p&gt;MLE is a parametric method, meaning it relies on assuming that the data in the sample (the training data) are drawn from a distribution. Furthermore, it assumes that the draws are independent of one another. In statistics it would be said that the sample is IID ~ Independent and Identically Distributed (according to some parametric distribution). Note that: &lt;em&gt;parametric distribution&lt;/em&gt; - these are exactly the parameters we are attempting to estimate - the parameters governing the random variable distribution producing the observations in our sample (training data). You see now that the assumption of an underlying probability distribution function is integral to how this method of parameter estimation works. At least, theoretically. Let's make that a little more concrete.&lt;/p&gt;
-&lt;p&gt;Suppose we have evidence* that our sample $S={x_1,...,x_n}$ is a collection of iid observations of a random variable $X~D$ where $D$ has a probability distribution function $f(x|\theta)$, where $\theta=(\theta_1,...,\theta_k)$ are the parameters of the distribution. (eg for the normal distribution, $\theta=(\mu,\sigma)$, and for the Bernoulli distribution, $\theta=p$)&lt;/p&gt;
-&lt;p&gt;The MLE method considers the probability (likelihood) of obtaining the values that were obtained in the sample, given that they were drawn from this distribution. The way to do this is with the joint probability distribution, which considers all of the random variables together, including any dependence: $f(x_1,...,x_n|\theta)$. Luckily, we're using the iid assumption, and thus the joint pdf is just the product of the individual ones. Quite naturally, we can consider this a function of $\theta$, refered to as a &lt;em&gt;likelihood function&lt;/em&gt; or a &lt;em&gt;loss function.&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;Suppose we have evidence* that our sample $S=\{ x_1,...,x_n\}$ is a collection of IID observations of a random variable $X\sim D$ where $D$ has a probability distribution function $f(x|\theta)$, where $\theta=(\theta_1,...,\theta_k)$ are the parameters of the distribution. (eg for the normal distribution, $\theta=(\mu,\sigma)$, and for the Bernoulli distribution, $\theta=p$)&lt;/p&gt;
+&lt;p&gt;The MLE method considers the probability (likelihood) of obtaining the values that were obtained in the sample, given that they were drawn from this distribution. The way to do this is with the joint probability distribution, which considers all of the random variables together, including any dependence: $f(x_1,...,x_n|\theta)$. Luckily, we're using the IID assumption, and thus the joint pdf is just the product of the individual ones. Quite naturally, we can consider this a function of $\theta$, refered to as a &lt;em&gt;likelihood function&lt;/em&gt; or a &lt;em&gt;loss function.&lt;/em&gt;&lt;/p&gt;
 &lt;blockquote&gt;&lt;p&gt;$L_{S,D}(\theta|x)=f(x_1,...,x_n|\theta)=\prod_{i=1}^n f(x_i|\theta).$&lt;/p&gt;
 &lt;/blockquote&gt;
 &lt;p&gt;The idea is then to find the values for $\theta_j$ which maximize this function (maximize the likelihood of the observations coming from the distribution governed by these parameters). The reduction to a maximization problem introduces a whole host of applied mathematics methods, mostly stemming from calculus (duh, maximization). One extremely common method is to apply a logarithmic transformation to the likelihood function, since a) this transformation has even parity (if a value for $\theta$ maximizes $L_{S,D}(\theta|x)$, then the same value maximizes $\log(L_{S,D}(\theta|x))$), and b) actually allows us access to $\theta$ in the equation. Thus, the &lt;em&gt;log likelihood&lt;/em&gt; is given as&lt;/p&gt;
@@ -1005,10 +1005,10 @@ h6:hover .anchor-link {
 &lt;/div&gt;
 &lt;div class="inner_cell"&gt;
 &lt;div class="text_cell_render border-box-sizing rendered_html"&gt;
-&lt;h2 id="An-example"&gt;An example&lt;a class="anchor-link" href="#An-example"&gt;¶&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;If you're asked to use the MLE method to estimate a parameter in an interview or on an exam, it will typically not be one requiring tedious mathematics. An adequate example to display your understanding is found in the Bernoulli random variable. Recall that $X~Bern(p)$ has pdf $f(x)=p^x(1-p)^{1-x}$, where $x\in {0,1}$. Thus,&lt;/p&gt;
+&lt;h2 id="An-example"&gt;An example&lt;a class="anchor-link" href="#An-example"&gt;¶&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;If you're asked to use the MLE method to estimate a parameter in an interview or on an exam, it will typically not be one requiring tedious mathematics. An adequate example to display your understanding is found in the Bernoulli random variable. Recall that $X\sim \text{Bernoulli}(p)$ has pdf $f(x)=p^x(1-p)^{1-x}$, where $x\in {0,1}$. Thus,&lt;/p&gt;
 &lt;blockquote&gt;&lt;p&gt;$L_{S,D}(p|x) = \prod_{i=1}^n p^{x_i}(1-p)^{1-x_i} = p^{\sum x_i}(1-p)^{n-\sum x_i}$,&lt;/p&gt;
 &lt;p&gt;$\log(L_{S,D}(p|x))=\log(p^{\sum x_i}(1-p)^{n-\sum x_i})=(\sum x_i)\log(p)+(n-\sum x_i)\log(1-p)$, and&lt;/p&gt;
-&lt;p&gt;$\frac{d}{dp}\log(L_{S,D}(p|x))=\frac{\sum x_i}{p}-\frac{n-\sum x_i}{1-p}=0$,&lt;/p&gt;
+&lt;p&gt;$\frac{d}{dp}\log( L_{S,D}(p|x))=\frac{\sum x_i}{p}-\frac{n-\sum x_i}{1-p}=0$,&lt;/p&gt;
 &lt;/blockquote&gt;
 &lt;p&gt;thus, cross-multiplying by denomenators to obtain the least common demoninator&lt;/p&gt;
 &lt;blockquote&gt;&lt;p&gt;$\sum x_i-p\sum x_i -pn + p\sum x_i = 0.$&lt;/p&gt;
@@ -1029,7 +1029,7 @@ You may wish to check that, in the example above,&lt;/p&gt;
 &lt;li&gt;$Var(\frac{\sum x_i}{n}) = \frac{p(1-p)}{n}$&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;&lt;em&gt;hints&lt;/em&gt;&lt;/p&gt;
-&lt;p&gt;For $X~Bernoulli(p)$&lt;/p&gt;
+&lt;p&gt;For $X\sim \text{Bernoulli}(p)$&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;$E[X] = p$&lt;/li&gt;
 &lt;li&gt;$Var(X) = p(1-p)$&lt;/li&gt;
@@ -1067,7 +1067,7 @@ You may wish to check that, in the example above,&lt;/p&gt;
     (document.body || document.getElementsByTagName('head')[0]).appendChild(mathjaxscript);
 }
 &lt;/script&gt;
-</summary><category term="personal"></category><category term="tutorial"></category></entry><entry><title>Stravapp - the end is nigh</title><link href="https://lgoerl.github.io/blog/2017/stravapp-readme.html" rel="alternate"></link><published>2017-05-04T08:00:00-07:00</published><updated>2017-05-04T08:00:00-07:00</updated><author><name>me</name></author><id>tag:lgoerl.github.io,2017-05-04:blog/2017/stravapp-readme.html</id><summary type="html">&lt;style type="text/css"&gt;/*!
+</summary><category term="personal"></category><category term="tutorial"></category></entry><entry><title>Stravapp - the end is nigh</title><link href="https://lgoerl.github.io/stravapp-readme.html" rel="alternate"></link><published>2017-05-04T08:00:00-07:00</published><updated>2017-05-04T08:00:00-07:00</updated><author><name>me</name></author><id>tag:lgoerl.github.io,2017-05-04:stravapp-readme.html</id><summary type="html">&lt;style type="text/css"&gt;/*!
 *
 * IPython notebook
 *
@@ -2110,7 +2110,7 @@ h6:hover .anchor-link {
     (document.body || document.getElementsByTagName('head')[0]).appendChild(mathjaxscript);
 }
 &lt;/script&gt;
-</summary><category term="stravapp"></category><category term="personal"></category><category term="tutorial"></category><category term="flask"></category><category term="angularjs"></category></entry><entry><title>SunCode Hackathon 2017</title><link href="https://lgoerl.github.io/blog/2017/suncode-hackathon.html" rel="alternate"></link><published>2017-04-09T08:21:00-07:00</published><updated>2017-04-09T08:21:00-07:00</updated><author><name>Lee Goerl</name></author><id>tag:lgoerl.github.io,2017-04-09:blog/2017/suncode-hackathon.html</id><summary type="html">&lt;style type="text/css"&gt;/*!
+</summary><category term="stravapp"></category><category term="personal"></category><category term="tutorial"></category><category term="flask"></category><category term="angularjs"></category></entry><entry><title>SunCode Hackathon 2017</title><link href="https://lgoerl.github.io/suncode-hackathon.html" rel="alternate"></link><published>2017-04-09T08:21:00-07:00</published><updated>2017-04-09T08:21:00-07:00</updated><author><name>Lee Goerl</name></author><id>tag:lgoerl.github.io,2017-04-09:suncode-hackathon.html</id><summary type="html">&lt;style type="text/css"&gt;/*!
 *
 * IPython notebook
 *
@@ -3187,7 +3187,7 @@ We'd also have data on battery usage, which we would use to build a model for ba
     (document.body || document.getElementsByTagName('head')[0]).appendChild(mathjaxscript);
 }
 &lt;/script&gt;
-</summary><category term="personal"></category><category term="projects"></category></entry><entry><title>Hello World</title><link href="https://lgoerl.github.io/blog/2017/hello-world.html" rel="alternate"></link><published>2017-04-04T16:21:00-07:00</published><updated>2017-04-04T16:21:00-07:00</updated><author><name>Lee Goerl</name></author><id>tag:lgoerl.github.io,2017-04-04:blog/2017/hello-world.html</id><summary type="html">&lt;style type="text/css"&gt;/*!
+</summary><category term="personal"></category><category term="projects"></category></entry><entry><title>Hello World</title><link href="https://lgoerl.github.io/hello-world.html" rel="alternate"></link><published>2017-04-04T16:21:00-07:00</published><updated>2017-04-04T16:21:00-07:00</updated><author><name>Lee Goerl</name></author><id>tag:lgoerl.github.io,2017-04-04:hello-world.html</id><summary type="html">&lt;style type="text/css"&gt;/*!
 *
 * IPython notebook
 *
