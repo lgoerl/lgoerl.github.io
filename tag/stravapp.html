@@ -24,15 +24,15 @@
                 <article>
                     <h1 class="entry-title"><a href="https://lgoerl.github.io/stravapp-readme.html">Stravapp - the end is nigh</a></h1>
 <footer class="post-info">
-        <abbr class="published" title="2017-05-04T08:00:00-07:00">
-                Published: Thu 04 May 2017
+        <abbr class="published" title="2017-05-14T14:00:00-07:00">
+                Published: Sun 14 May 2017
         </abbr>
 
         <address class="vcard author">
                 By                         <a class="url fn" href="https://lgoerl.github.io/author/me.html">me</a>
         </address>
 <p>In <a href="https://lgoerl.github.io/category/posts.html">posts</a>.</p>
-<p>tags: <a href="https://lgoerl.github.io/tag/stravapp.html">stravapp</a> <a href="https://lgoerl.github.io/tag/personal.html">personal</a> <a href="https://lgoerl.github.io/tag/tutorial.html">tutorial</a> <a href="https://lgoerl.github.io/tag/flask.html">flask</a> <a href="https://lgoerl.github.io/tag/angularjs.html">angularjs</a> </p>
+<p>tags: <a href="https://lgoerl.github.io/tag/stravapp.html">stravapp</a> <a href="https://lgoerl.github.io/tag/personal.html">personal</a> <a href="https://lgoerl.github.io/tag/tutorials.html">tutorials</a> <a href="https://lgoerl.github.io/tag/flask.html">flask</a> <a href="https://lgoerl.github.io/tag/angularjs.html">angularjs</a> </p>
 </footer><!-- /.post-info --><style type="text/css">/*!
 *
 * IPython notebook
@@ -1011,11 +1011,16 @@ h6:hover .anchor-link {
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h1 id="Strava---App">Strava - App<a class="anchor-link" href="#Strava---App">¶</a></h1><p>Stravapp is a lot of things. I'll try to give an objective account of them before I say anything personal about the project.</p>
-<p><a href="https://www.stravapp.herokuapp.com">project</a>
+<p><strong>links:</strong></p>
+<p><strong>production: </strong><a href="https://www.stravapp.herokuapp.com">project</a>,
 <a href="https://github.com/lgoerl/stravapp">github</a></p>
+<p><strong>tutorials: </strong><a href="http://www.quasicoherentlabs.com/blog/setting-up-a-postgresql-rds-on-amazon-aws">part 1</a>,
+<a href="http://www.quasicoherentlabs.com/blog/connecting-a-flask-controlled-app-to-our-postgres-database">part 2</a>,
+<a href="http://www.quasicoherentlabs.com/blog/constructing-an-angular-front-end-for-a-flask-app">part 3</a>,
+<a href="https://lgoerl.github.io/stravapp-part4">part 4</a></p>
 <h2 id="Readme.md">Readme.md<a class="anchor-link" href="#Readme.md">¶</a></h2><p>Stravapp is a tool built by <a href="http://www.bryanbischof.com">Bryan Bischof</a>, Jeff Larson, and myself to implement some of the features we wanted to use with <a href="http://www.strava.com">Strava</a>'s user-created routes. Routes, if you're not familiar, are a fairly underdeveloped content-type provided by Strava's platform, allowing the user to create a predetermined route, utilizing Strava's segments, or not. They can be made private or public, but there is really no way to search for them. Currently, there have been 7million + routes created by Strava's users - and it seemed like a totally natural thing to make them searchable in some way.</p>
 <p>This is, essentially, what we've done: make them searchable. From our app, these routes can be queried by a variety of parameters, including location. We're currently in the process of making location based queries much more accessible with location based parameters by reverse-geocoding each route by the latitude and longitude coordinates included for starting and ending locations for each route with <a href="https://github.com/thampiman/reverse-geocoder">reverse-geocoder</a>. From this we'll be able to add meta-data such as state and county level columns to our dataset.</p>
-<p>To implement this feature, we first scraped and cleaned the data from Strava's website. The initial 10,000 routes are all that have been copied to the production database. This step of the project was done by Jeff and Bryan. Bryan is currently in the process of automating the scraping, cleaning, and extraction of location data with <code>reverse-geocoder</code> for the remaining 7million routes. His progress can be seen in his repo <a href="https://github.com/BBischof/strava-route_grabber">strava-route_grabber</a>. A very cool aspect that I'm excited to see is the implementation of this process on a distributed system, which he's currently working on. (Although, as of yet, we have not been rate-limited by Strava's servers).</p>
+<p>To implement this feature, we first scraped and cleaned the data from Strava's website. The initial 10,000 routes are all that have been copied to the production database. This step of the project was done by Jeff and Bryan. We are currently in the process of automating the scraping, cleaning, and extraction of location data with <code>reverse-geocoder</code> for the remaining 7million routes. His progress can be seen in his repo <a href="https://github.com/BBischof/strava-route_grabber">strava-route_grabber</a>. A very cool aspect that I'm excited to see is the implementation of this process on a distributed system, which he's currently working on. (Although, as of yet, we have not been rate-limited by Strava's servers).</p>
 <h4 id="Front-end">Front-end<a class="anchor-link" href="#Front-end">¶</a></h4><p>The data is stored in an Amazon PostgreSQL RDS that acts as the foundation of the <code>flask</code>-based back-end. We've used <code>flask_restful</code> to setup an API that parses dynamic endpoint queries from users and the front-end. The back-end uses</p>
 <ul>
 <li>flask, Blueprint,</li>
@@ -1030,20 +1035,9 @@ h6:hover .anchor-link {
 <li>ui-grid</li>
 <li>ui-router, stateProvider</li>
 </ul>
-<h2 id="personal-take-aways-and-difficulties">personal take-aways and difficulties<a class="anchor-link" href="#personal-take-aways-and-difficulties">¶</a></h2><p>There's no getting around it, this project has been difficult for me for several reasons. Most obviously, I only had a basic grasp of <code>flask</code> when this project started, but 0 experience with any of the other tools utilized, or even with javascript, for the most part, let alone Angular. These frustrations are inevitable but temporary - and reduced by the fact that I like learning things anyway. This did make the project take longer than it would have otherwise, both due to the lack of familiarity with the language, but also with the app/project structures. And, also, because I was the only one working on it after the initial round of data had been scraped and cleaned.</p>
+<h2 id="Personal-take-aways-and-difficulties">Personal take-aways and difficulties<a class="anchor-link" href="#Personal-take-aways-and-difficulties">¶</a></h2><p>There's no getting around it, this project has been difficult for me for several reasons. Most obviously, I only had a basic grasp of <code>flask</code> when this project started, but had exactly  experience with any of the other tools utilized, or even with javascript, for the most part, let alone Angular. These frustrations are inevitable but temporary - and reduced by the fact that I like learning things anyway. This did make the project take longer than it would have otherwise, both due to the lack of familiarity with the language, but also with the app/project structures. And, also, because I was the only one working on it after the initial round of data had been scraped and cleaned.</p>
 <p>Another frustration was scope-creep, which definitely interacted with being the only one working on the project.</p>
 <p>Despite (or, in result of?) the difficulties of the project, I ended up learning a lot. I think, most valuably (in addition to the coding with flask and angular), I got a good taste of developing in a test/production style environment with the help of git, and working with a product manager to set goals and scope things out before digging into technical tasks. The latter is something I've had experience with in grad school, but it's something that I'll probably need to keep learning.</p>
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In [ ]:</div>
-<div class="inner_cell">
-<div class="input_area">
-<div class=" highlight hl-ipython2"><pre><span></span> 
-</pre></div>
-</div>
 </div>
 </div>
 </div>
@@ -1078,6 +1072,44 @@ h6:hover .anchor-link {
 </script>
                 </article>
             </aside><!-- /#featured -->
+                <section id="content" class="body">
+                    <h1>Other articles</h1>
+                    <hr />
+                    <ol id="posts-list" class="hfeed">
+
+            <li><article class="hentry">
+                <header>
+                    <h1><a href="https://lgoerl.github.io/stravapp-part4.html" rel="bookmark"
+                           title="Permalink to Allowing more complicated RESTFUL queries from your AngularJS front-end">Allowing more complicated RESTFUL queries from your AngularJS front-end</a></h1>
+                </header>
+
+                <div class="entry-content">
+<footer class="post-info">
+        <abbr class="published" title="2017-05-14T11:00:00-07:00">
+                Published: Sun 14 May 2017
+        </abbr>
+
+        <address class="vcard author">
+                By                         <a class="url fn" href="https://lgoerl.github.io/author/me.html">me</a>
+        </address>
+<p>In <a href="https://lgoerl.github.io/category/posts.html">posts</a>.</p>
+<p>tags: <a href="https://lgoerl.github.io/tag/stravapp.html">stravapp</a> <a href="https://lgoerl.github.io/tag/personal.html">personal</a> <a href="https://lgoerl.github.io/tag/tutorials.html">tutorials</a> <a href="https://lgoerl.github.io/tag/flask.html">flask</a> <a href="https://lgoerl.github.io/tag/angularjs.html">angularjs</a> <a href="https://lgoerl.github.io/tag/python.html">python</a> </p>
+</footer><!-- /.post-info -->                
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Part-IV---Querying-the-Database">Part IV - Querying the Database<a class="anchor-link" href="#Part-IV---Querying-the-Database">¶</a></h1><p><a href="http://www.quasicoherentlabs.com/blog/setting-up-a-postgresql-rds-on-amazon-aws">Part 1 - Setting up a PostgreSQL RDS with Amazon's AWS</a></p>
+<p><a href="http://www.quasicoherentlabs.com/blog/connecting-a-flask-controlled-app-to-our-postgres-database">Part 2 - Flask: building a RESTFUL API over the PostgreSQL RDS</a></p>
+<p><a href="http://www.quasicoherentlabs.com/blog/constructing-an-angular-front-end-for-a-flask-app">Part 3 - The Front-End, with AngularJS</a></p>
+<p><a href="https://github.com/lgoerl/stravapp">github</a></p>
+<p>Techinically, parts I-III have already setup a query of the database - albeit, a trivial one. In this entry, we'll add the functionality to allow users to specify some more complicated queries. This is a good time to make a new <code>git</code>
+                <a class="readmore" href="https://lgoerl.github.io/stravapp-part4.html">read more</a>
+                </div><!-- /.entry-content -->
+            </article></li>
+                </ol><!-- /#posts-list -->
+                </section><!-- /#content -->
         <section id="extras" class="body">
                 <div class="blogroll">
                         <h2>blogroll</h2>
