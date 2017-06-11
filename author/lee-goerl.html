@@ -17,21 +17,22 @@
                 <nav><ul>
                     <li><a href="https://lgoerl.github.io/">Lee Goerl</a></li>
                     <li><a href="https://lgoerl.github.io/category/posts.html">posts</a></li>
+                    <li><a href="https://lgoerl.github.io/category/posts-tutorials-code-spark.html">posts, tutorials, code, spark</a></li>
                 </ul></nav>
         </header><!-- /#banner -->
 
             <aside id="featured" class="body">
                 <article>
-                    <h1 class="entry-title"><a href="https://lgoerl.github.io/suncode-hackathon.html">SunCode Hackathon 2017</a></h1>
+                    <h1 class="entry-title"><a href="https://lgoerl.github.io/spark-overflow-analysis.html">Analyzing StackOverflow with Apache Spark</a></h1>
 <footer class="post-info">
-        <abbr class="published" title="2017-04-09T08:21:00-07:00">
-                Published: Sun 09 April 2017
+        <abbr class="published" title="2017-06-09T18:15:00-07:00">
+                Published: Fri 09 June 2017
         </abbr>
 
         <address class="vcard author">
                 By                         <a class="url fn" href="https://lgoerl.github.io/author/lee-goerl.html">Lee Goerl</a>
         </address>
-<p>In <a href="https://lgoerl.github.io/category/posts.html">posts</a>.</p>
+<p>In <a href="https://lgoerl.github.io/category/posts-tutorials-code-spark.html">posts, tutorials, code, spark</a>.</p>
 <p>tags: <a href="https://lgoerl.github.io/tag/personal.html">personal</a> <a href="https://lgoerl.github.io/tag/projects.html">projects</a> </p>
 </footer><!-- /.post-info --><style type="text/css">/*!
 *
@@ -1010,11 +1011,7 @@ h6:hover .anchor-link {
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h1 id="The-Myth-of-Clean-Coal">The Myth of Clean Coal<a class="anchor-link" href="#The-Myth-of-Clean-Coal">¶</a></h1><h4 id="links">links<a class="anchor-link" href="#links">¶</a></h4><ul>
-<li><a href="https://github.com/BBischof/suncode-hackathon">github</a> </li>
-<li><a href="https://devpost.com/software/clean-coal-ljti0z">devpost</a></li>
-</ul>
-<p>  This weekend (Friday and Saturday, April 8th) I participated in <a href="https://suncode2017.devpost.com/">Powerhouse's SunCode 2017 Hackathon</a> in a team of 5: engineers Bryan Bischof and Jeff Larson, and industry professionals Caroline Whittinghill and Geoff Cotter. To moderate amusement and confusion of the rest of the room, we named ourselves CLEAN COAL - you know, the joke. This was my first hackathon, so I didn't really have any expectations, but to save you the suspense, I did leave pretty disappointed. Also, exhausted, smelly, and very dehydrated.</p>
+<h1 id="A-little-about-Apache-Spark">A little about Apache Spark<a class="anchor-link" href="#A-little-about-Apache-Spark">¶</a></h1><p>The amount of experience I have with Spark is not substancial, but something is better than nothing. I've had the opportunity to leverage the Spark platform on what I think is a really cool dataset, and one that's relevant to me: StackOverflow. I'm going to go through the analysis with some code later, but first, to remind myself, some basics from the documentation.</p>
 </div>
 </div>
 </div>
@@ -1023,50 +1020,23 @@ h6:hover .anchor-link {
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>   Powerhouse's sponsors for the event, <a href="https://www.dsm.com/corporate/about/business-entities/dsm-venturing.html">DSM</a> and <a href="https://www.sunrun.com/">Sunrun</a> both issued two of their own challenges, and Powerhouse issued one, which can be found on the event page above. Many teams came up with really creative projects to work on outside the scope of these challenges -- one team attempted to develop a completely novel power generation process using gravitational wave! -- and I believe 3rd place and honerable mentions were won by such teams, but the real money went to teams that addressed the challenges put forth by the judges, as did we.</p>
-<p>   Our team tackled Powerhouse's challenge. Put in their own words:</p>
-<h4 id=""-Batteries-are-being-installed-at-a-rapid-rate-as-part-of-solar-systems.-Create-an-algorithm-or-machine-learning-routine-that-will-maximize-customer-benefit-in-a-variable-TOU-rate-situation-while-also-maximizing-battery-lifespan.--"">" Batteries are being installed at a rapid rate as part of solar systems. Create an algorithm or machine learning routine that will maximize customer benefit in a variable TOU rate situation while also maximizing battery lifespan.  "<a class="anchor-link" href="#"-Batteries-are-being-installed-at-a-rapid-rate-as-part-of-solar-systems.-Create-an-algorithm-or-machine-learning-routine-that-will-maximize-customer-benefit-in-a-variable-TOU-rate-situation-while-also-maximizing-battery-lifespan.--"">¶</a></h4><p>This challenge easily showcased our teams talents and skillset the best out of the five, and seemed legitimately interesting. Though it was against the rules to code anything before the event officially started on Firday evening, since we had a team made up before the event and decided on a challenge, we met a few days early and had Caroline and Josh melt our faces off with a bombardment of technical jargon. That night we laid down an approach that would end up utilizing more data than we actually could during the competition -- which isn't that surprising.</p>
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered">
-<div class="prompt input_prompt">
-</div>
-<div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p><img alt="Clean Coal model" src="https://lgoerl.github.io/images/sunrun_model.jpg" /></p>
-<h4 id="Approach">Approach<a class="anchor-link" href="#Approach">¶</a></h4><p>   Our (super optimistic) goal is pictured in the above diagram. In words, we're making a controller to decide when to charge and discharge the batteries, and where to send the power when they are discharged. 
-We would build two daily forecasters:</p>
+<h2 id="Vocab">Vocab<a class="anchor-link" href="#Vocab">¶</a></h2><p><strong>Spark</strong> - Like Hadoop, Spark is a lowlevel framework for distributed data analysis, except better. Spark does most of its work in memory, instead of persistently persisting to disk. It also has more support for common python analysis packages.</p>
+<p><strong>RDD</strong> - Resilient Distributed Datasets - these are like lists, but <em>resilient.</em> Heheheh. They're like lists, but distributed. They can be lists of many things: typical datatypes, dictionaries, or objects (v convenient). Use <code>sc.parallelize(any_list)</code> to load any list into the parallelization.</p>
+<p><strong>Shared variables</strong> These come in two flavors, which you could probably predict if you've used Hadoop.</p>
 <ul>
-<li>one for energy demand, and </li>
-<li>one for production from a PhotoVoltaic installation. 
-We'd also have data on battery usage, which we would use to build a model for battery life and usage*. </li>
+<li>Broadcast variables - think of as static variables whose value is sent to all the nodes in the parallelization <em>one variable to many nodes</em></li>
+<li>Accumulator variables - variables into which values from the RDD are being accumulated independently from all nodes <em>many nodes to one variable</em> </li>
 </ul>
-<p>   Power from the grid must be paid for, and the price is determined by the Time Of Use plan used by the power company. Generally, power is more expensive during the day, during peak hours, and less expensive at other times. The algorithm will be optimized both to save the most money by utilizing stored power from the batteries during the day and charging them during the off-peak hours, while also avoiding putting undue stress on the batteries to prolong life as long as possible.</p>
-<p>*This model is to address the fact that batteries' maximum charge capacity degrades over time, depending on charge and discharge rates, and charge/discharge cycles, while may be at odds with optimized use practices if only considering saving money by discharing during the peak TOU periods.</p>
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered">
-<div class="prompt input_prompt">
-</div>
-<div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<h4 id="In-reality">In reality<a class="anchor-link" href="#In-reality">¶</a></h4><p>   Unfortunately we couldn't actually implement everything in our plan, as should be expected. Problems we encountered mostly boiled down to not having enough time. Though we also couldn't find some of the data re: batteries that we expected to find. We did, however, find some estimated degredation models.</p>
-<p>   In the end, we only got a naive model completed. But, due to the testing we did, it worked and didn't leave us with nothing. It even saved a little money on some of the test cases for which we did have data, over not using any battery power at all. This was despite the fact that we only had them charging during PV over-production, which in itself is a pretty uncommon occurance, especially in commercial applications.</p>
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered">
-<div class="prompt input_prompt">
-</div>
-<div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<h4 id="What-I-contributed">What I contributed<a class="anchor-link" href="#What-I-contributed">¶</a></h4><ul>
-<li>implemented the function to map timestamps to the corresponding TOU plan rate</li>
-<li>helped with development, coding, and trouble-shooting/debugging the controller algorithm</li>
-<li>wrote tests for the algorithm</li>
-<li>some auxillary helper functions</li>
+<p>Next we have the <em>verbs</em> with which we can act on RDDs.</p>
+<p><strong>Transformations</strong> - a transformation takes an RDD and returns another RDD. Typical transformations are things like, a column selector, or a mathetmatical transformation on a column. We use</p>
+<ul>
+<li><code>map</code>, <code>flatmap</code>, <code>sample</code>, <code>filter</code>, <code>join</code>, <code>groupByKey</code>, <code>reduceByKey</code>, <code>aggregateByKey</code> and <code>countByKey</code>. </li>
+<li>Usually, a <code>lambda</code> function accompanies the use of <code>map</code> or <code>flatmap</code>, <code>reduceByKey</code> or <code>aggregateByKey</code>. </li>
+</ul>
+<p>Note, <code>reduceByKey</code> and <code>aggregateByKey</code> are different.</p>
+<p><strong>Actions</strong> - a type of transformation that returns a <em>value</em> instead of another RDD (could be a list, dictionary, etc). Examples include</p>
+<ul>
+<li><code>reduce</code>, <code>count</code>, <code>take(n)</code>, <code>takeOrdered(n,[ordering])</code>, <code>first</code></li>
 </ul>
 </div>
 </div>
@@ -1076,8 +1046,412 @@ We'd also have data on battery usage, which we would use to build a model for ba
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h4 id="Final-thoughts">Final thoughts<a class="anchor-link" href="#Final-thoughts">¶</a></h4><p>   At the start of the entry, you'll remember I said that I was a little disappointed. This is because the winning team (\$4000, and a company, maybe?) was effectively the only other team that attempted the same challenge. They didn't have a controller built, but they had done a better job presenting the idea to the judges by framing the software as a monetizable product, and by giving estimates of how much its implementation would save a customer. There was no need for proof of concept, as there are several companies attempting to provide such a product, and though we didn't have an estimate of saved costs since our algorithm was so naive, we could have done more research on those companies and used their estimates for customer savings. It's frustrating to have gone into it knowing that such an aspect would be emphasized in the judgement of the pitches, and I felt like just another out-of-touch engineer or math nerd getting lost in the details until it was too late to even weild my depleted brain-power thinking of such a simple approach to obtaining this estimate (our plan was to get an estimate from the actual performance of the algorithm, which was too naive to provide anything more than $200/yr in savings -- obviously negligible for a commercial entity).</p>
-<p>   Despite being shown up at our own game by another team - the winning team, granted - the event was a lot of fun. My team was filled with badasses, and just plain cool people, and I feel very lucky to have had the opportunity to hang out with those people, but especially in a space wherein we could collaborate on solving a super interesting problem. Caroline and Geoff said they felt useless, but there are no doubts from the developer side that we would not have been able to make anything coherent or appropriate in any way without their help.</p>
+<h1 id="Examples">Examples<a class="anchor-link" href="#Examples">¶</a></h1><p>As I said, the dataset is a collection of <a href="https://stackoverflow.com/">Stack Overflow</a> data: questions, answers, and user data. We're going to mostly do a mixture of exploratory data aggregation, tricky feature extraction, and train a model. Specifically:</p>
+<ul>
+<li>Investigate users' reputation by considering the types of posts they make (question or answer),</li>
+<li>Investigate the realtionship between user reputation and tenure (by post-count),</li>
+<li>Investigate if the reception of the users' first question has an effect on if they're active 100-150 days from account creation,</li>
+<li>Use Dataframes and SparkML's to train a <code>Word2Vec</code> model and find terms related to "ggplot2" by considering cosine similarity scores,</li>
+<li>Use the <code>Word2Vec</code> model to cluster questions,</li>
+<li>Predict tags of a question from the body text.</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="The-Data-Itself">The Data Itself<a class="anchor-link" href="#The-Data-Itself">¶</a></h2><p>There are three datasets, each broken into many parts, and having been stored and extracted in their own folder. All the data are in the form of json objects inside xml files; each line is an entry. For each of the three datasets, listed below is an example of data found in a line of each.</p>
+<h3 id="allPosts">allPosts<a class="anchor-link" href="#allPosts">¶</a></h3>
+<pre><code>'ViewCount': '223',
+'Title': 'Formula to discard items by votes (Lower bound of Wilson score confidence interval)', 
+'LastEditDate': '2011-06-02T22:10:16.550', 
+'AnswerCount': '0', 
+'Score': '2', 
+'OwnerDisplayName': 'metrobalderas', 
+'PostTypeId': '1', 
+'OwnerUserId': '4638', 
+'FavoriteCount': '0', 
+'Body': u'<p>I\'m developing an application in which users can create \'sections\' (\xe0 la subreddit in reddit), in which items/posts can be created and voted with a thumbs-up/down system.</p>\n\n<p><a href="http://www.evanmiller.org/how-not-to-sort-by-average-rating.html" rel="nofollow">A great article</a> guided me on how to sort these votes so that an item with a 100% positive response but with few votes won\'t get ranked over one with hundreds of votes and an acceptance of 80%. The article describes it pretty well.</p>\n\n<p>However, I\'d like to discard the lowest-ranked items and this is where it gets tricky:</p>\n\n<ul>\n<li>How could I know the minimum number of votes in order to discard it?</li>\n<li>What is the score\'s threshold required to discard the item?</li>\n</ul>\n\n<p>As I said, there are sections, and each one has items (which are the ones voted). The formula has to take into consideration the fact that one section may have 100 items with thousands of votes and another might have 3 or 4 items with 20 votes, so a minimum of 40 votes required might be optimal for the first case but totally out of bounds for the second.</p>\n\n<p>(I was tempted in posting this to MathOverflow, but I\'m not really sure since this also involves some programming)</p>\n\n<p>Thanks!</p>\n', 
+'Tags': '<confidence-interval>', 
+'LastEditorUserId': '88', 
+'LastActivityDate': '2011-06-02T22:10:16.550', 
+'CommentCount': '0', 
+'CreationDate': '2011-05-16T17:39:58.170', 'Id': '10893'}</code></pre>
+<h3 id="allUsers">allUsers<a class="anchor-link" href="#allUsers">¶</a></h3>
+<pre><code>{'DisplayName': 'Lars Reeker', 
+'Views': '0', 
+'DownVotes': '0', 
+'LastAccessDate': '2015-03-02T18:42:20.510', 
+'ProfileImageUrl': 'https://lh3.googleusercontent.com/-Y7GNsydm-mc/AAAAAAAAAAI/AAAAAAAADq8/15o5t99O5IU/photo.jpg', 
+'Reputation': '1', 
+'UpVotes': '0', 
+'CreationDate': '2015-03-02T18:42:20.510', 
+'Id': '70185', 
+'AccountId': '5872878'}</code></pre>
+<h3 id="allVotes">allVotes<a class="anchor-link" href="#allVotes">¶</a></h3>
+<pre><code>{'VoteTypeId': '2', 
+'PostId': '2350', 
+'CreationDate': '2013-05-23T00:00:00.000', 
+'Id': '221084'}</code></pre>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Preliminaries">Preliminaries<a class="anchor-link" href="#Preliminaries">¶</a></h2><p>Loading packages and data.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class=" highlight hl-ipython2"><pre><span></span><span class="kn">from</span> <span class="nn">pyspark</span> <span class="kn">import</span> <span class="n">SparkContext</span>
+<span class="kn">import</span> <span class="nn">pyspark</span><span class="o">,</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">re</span><span class="o">,</span> <span class="nn">operator</span>
+<span class="kn">from</span> <span class="nn">lxml</span> <span class="kn">import</span> <span class="n">etree</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
+
+<span class="n">sc</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="p">(</span><span class="s2">"local[*]"</span><span class="p">,</span> <span class="s2">"temp"</span><span class="p">)</span>
+
+<span class="n">postsPath</span> <span class="o">=</span> <span class="s1">'/allPosts'</span>
+<span class="n">usersPath</span> <span class="o">=</span> <span class="s1">'/allUsers'</span>
+<span class="n">votesPath</span> <span class="o">=</span> <span class="s1">'/allVotes'</span>
+
+<span class="k">def</span> <span class="nf">datapath</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+    <span class="k">return</span> <span class="s1">'file:///PATH-TO-PARENT-FOLDER'</span> <span class="o">+</span> <span class="n">path</span>
+
+<span class="n">allvotes</span> <span class="o">=</span> <span class="n">sc</span><span class="o">.</span><span class="n">textFile</span><span class="p">(</span><span class="n">datapath</span><span class="p">(</span><span class="s1">'allVotes/'</span><span class="p">))</span>
+<span class="n">allposts</span> <span class="o">=</span> <span class="n">sc</span><span class="o">.</span><span class="n">textFile</span><span class="p">(</span><span class="n">datapath</span><span class="p">(</span><span class="s1">'allPosts/'</span><span class="p">))</span> 
+<span class="n">allusers</span> <span class="o">=</span> <span class="n">sc</span><span class="o">.</span><span class="n">textFile</span><span class="p">(</span><span class="n">datapath</span><span class="p">(</span><span class="s1">'allUsers/'</span><span class="p">))</span> 
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>As a kind of preliminary "sanity check" let's extract favorite counts from posts and consider the ratio of upvotes to votes on that post. First, a function to extract favorites and votes, called <code>findFavorites</code>, from the lines of the <code>allvotes</code> dataset will need to be made. Lines in this dataset are small enough to write a regex search including the template of the entries; we'll write one to capture <code>Id</code>, <code>PostId</code>, and <code>VoteTypeId</code>. Then, <code>VoteTypeId</code> will be parsed into dummy valued 3-tuples (for ease in aggregating), <code>vote</code>,  based on the association <code>'2'</code>==<code>upvote</code>, <code>'3'</code>==<code>downvote</code>, and <code>'5'</code>==<code>favorite</code>. This function will spit out a tuple otf <code>(PostId, vote)</code> to be reduced.</p>
+<ul>
+<li>Apply <code>findFavorites</code> to each line with <code>map</code> and make sure to <code>filter</code> out <code>None</code> returns. </li>
+<li><code>reduceByKey</code> will then collect all tuples with the same key (<code>PostId</code>), and we tell it to add them together. </li>
+<li>Then, switch the order so the we have <code>(fav, (upvote, downvote))</code> as the key, value pair, </li>
+<li><code>reduceByKey</code>, where key is <code>favCount</code>, by addition again, yielding <code>(favCount, (totalUpVote, totalDownVote))</code></li>
+<li><code>mapValues</code> to transform the values <code>(totalUP, totalDOWN)=(x,y)</code> into the ratio <code>upVotes:totalVotes</code></li>
+<li>return top 50 tuples ordered by upvote ratio.</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class=" highlight hl-ipython2"><pre><span></span><span class="k">def</span> <span class="nf">findFavorites</span> <span class="p">(</span><span class="n">input_string</span><span class="p">):</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s1">'Id="([0-9]+)"\sPostId="([0-9]+)"[UserId\="0-9\s]+VoteTypeId="([235])"'</span><span class="p">,</span> <span class="n">input_string</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">results</span><span class="p">:</span>
+        <span class="n">vote</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">vote_val</span> <span class="o">=</span> <span class="n">results</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">vote_val</span> <span class="o">==</span> <span class="sa">u</span><span class="s1">'2'</span><span class="p">:</span>
+            <span class="n">vote</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">vote_val</span> <span class="o">==</span> <span class="sa">u</span><span class="s1">'3'</span><span class="p">:</span>
+            <span class="n">vote</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">vote_val</span> <span class="o">==</span> <span class="sa">u</span><span class="s1">'5'</span><span class="p">:</span>
+            <span class="n">vote</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">results</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span> <span class="n">vote</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">None</span>
+    
+<span class="n">results</span> <span class="o">=</span> <span class="n">allvotes</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">findFavorites</span><span class="p">)</span>\
+        <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span><span class="n">x</span> <span class="o">!=</span> <span class="bp">None</span><span class="p">)</span>\
+        <span class="o">.</span><span class="n">reduceByKey</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">:</span><span class="nb">tuple</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">operator</span><span class="o">.</span><span class="n">add</span><span class="p">,</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">)))</span>\
+        <span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">):(</span><span class="n">y</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">y</span><span class="p">[</span><span class="mi">1</span><span class="p">])))</span>\
+        <span class="o">.</span><span class="n">reduceByKey</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">:</span><span class="nb">tuple</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">operator</span><span class="o">.</span><span class="n">add</span><span class="p">,</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">)))</span>\
+        <span class="o">.</span><span class="n">mapValues</span><span class="p">(</span><span class="k">lambda</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">):</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">/</span><span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="o">+</span><span class="n">y</span><span class="p">))</span>\
+        <span class="o">.</span><span class="n">takeOrdered</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">s</span><span class="p">:</span><span class="n">s</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>It's tempting to simply transform each entry into a <code>(favCount, upVote/totalVote)</code> tuple and do a regression analysis, actually modeling the relationship and enabling prediction. But since we lost the total vote count in the transformation, it wouldn't make a lot of sense to do this since surely <code>favCount</code> is just as dependent on total votes, and it doesn't make much sense modeling the <code>upRatio</code> as the dependent variable.</p>
+<p>Would <code>upRatio</code> be a significant factor in a model already including <code>totalVotes</code>? If so, how much predictive power would adding it provide? These are interesting questions.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Reputation-by-postTypeRatio">Reputation by postTypeRatio<a class="anchor-link" href="#Reputation-by-postTypeRatio">¶</a></h2><p>This is a very similar calculation to the sanity check above. We'll write a couple functions:</p>
+<ul>
+<li><code>user_reps</code> to extract <code>userId</code> and <code>Reputation</code> from the <code>allUsers</code> dataset, and </li>
+<li><code>post_type</code> to extract <code>OwnerUserId</code> and whether the post was a question or answer from the <code>allPosts</code> dataset</li>
+</ul>
+<p>Most of the work is just a repetition of <code>map</code>, <code>filter</code>, and <code>reduceByKey</code> like in the sanity check, except this time we'll end by joining the two datasets to pair the top reputations with the <code>postTypeRatio</code>.</p>
+<ul>
+<li><code>top_users</code> will produce a list of tuples with <code>(userId, Reputation)</code></li>
+<li><code>posts</code> will produce an RDD of tuples with <code>(userId, answerCount/postCount)</code></li>
+<li>the join is done on keys, then we take the <code>Reputation</code> and <code>ratio</code>. </li>
+</ul>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class=" highlight hl-ipython2"><pre><span></span><span class="k">def</span> <span class="nf">user_reps</span><span class="p">(</span><span class="n">line</span><span class="p">):</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="n">etree</span><span class="o">.</span><span class="n">fromstring</span><span class="p">(</span><span class="n">line</span><span class="p">)</span><span class="o">.</span><span class="n">attrib</span>
+        <span class="k">return</span> <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">'Id'</span><span class="p">]),</span><span class="nb">float</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">'Reputation'</span><span class="p">]))</span>
+    <span class="k">except</span><span class="p">:</span> <span class="k">return</span> <span class="s1">'NA'</span>
+    
+<span class="k">def</span> <span class="nf">post_type</span><span class="p">(</span><span class="n">line</span><span class="p">):</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="n">etree</span><span class="o">.</span><span class="n">fromstring</span><span class="p">(</span><span class="n">line</span><span class="p">)</span><span class="o">.</span><span class="n">attrib</span>
+        <span class="c1">#select questions</span>
+        <span class="k">if</span> <span class="n">d</span><span class="p">[</span><span class="s1">'PostTypeId'</span><span class="p">]</span><span class="o">==</span><span class="s1">'1'</span><span class="p">:</span>
+            <span class="n">a</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+        <span class="c1">#select answers</span>
+        <span class="k">elif</span> <span class="n">d</span><span class="p">[</span><span class="s1">'PostTypeId'</span><span class="p">]</span><span class="o">==</span><span class="s1">'2'</span><span class="p">:</span>
+            <span class="n">a</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">'OwnerUserId'</span><span class="p">],</span><span class="n">a</span><span class="p">)</span>
+    <span class="k">except</span><span class="p">:</span> <span class="k">return</span> <span class="s1">'NA'</span><span class="p">,</span><span class="s1">'NA'</span>
+    
+    
+
+<span class="n">top_users</span> <span class="o">=</span> <span class="n">allusers</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">user_reps</span><span class="p">)</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">!=</span><span class="s1">'NA'</span><span class="p">)</span>\
+        <span class="o">.</span><span class="n">takeOrdered</span><span class="p">(</span><span class="mi">101</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">s</span><span class="p">:</span> <span class="o">-</span><span class="n">s</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    
+<span class="n">posts</span> <span class="o">=</span> <span class="n">allposts</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">post_type</span><span class="p">)</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">!=</span><span class="s1">'NA'</span><span class="p">)</span>\
+        <span class="o">.</span><span class="n">reduceByKey</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">:</span><span class="nb">tuple</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">operator</span><span class="o">.</span><span class="n">add</span><span class="p">,</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">)))</span>\
+        <span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">/</span><span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">])))</span>
+
+<span class="n">topusers_stat</span> <span class="o">=</span> <span class="n">sc</span><span class="o">.</span><span class="n">parallelize</span><span class="p">(</span><span class="n">top_users</span><span class="p">)</span>\
+                <span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">posts</span><span class="p">)</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]))</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Average-Reputation-by-postCount">Average Reputation by postCount<a class="anchor-link" href="#Average-Reputation-by-postCount">¶</a></h2><p>This time, we'll consider the user's <code>postCount</code> as the key, and average <code>Reputation</code> as the value. Though we already have the functions we need to extract the relevant data, we'll have to figure out how to find the average within our map/reduce sequence.</p>
+<ul>
+<li><code>id_post</code> just goes through each post in <code>allPosts</code> and attributes single posts to the owner's user id. </li>
+<li><code>posts_by_id</code> maps <code>id_post</code> onto <code>allPosts</code>, and then we reduceByKey to sum them all up to get post counts</li>
+<li><code>rep_by_tenure</code> is where the magic happens. Once we have the join of the two, tuples of <code>(id,(reputation,count))</code> </li>
+</ul>
+<h4 id="Averaging-values-over-a-key">Averaging values over a key<a class="anchor-link" href="#Averaging-values-over-a-key">¶</a></h4><p>To average (K,V) pairs by key, we'll need to keep track of both the <em>sum</em> and the <em>count</em> of the values passing through aggregator. To do this, we use <code>aggregateByKey</code>, which takes 3 arguments</p>
+<ul>
+<li>an initial value: <code>(0,0)</code> for us, since we're keeping track of sum and count</li>
+<li>a <em>within</em> partition reduction function: <code>lambda a,b: (a[0] + b,    a[1] + 1)</code> <ul>
+<li><code>a</code> is a tuple <code>(runningSum,runningCount)</code></li>
+<li><code>b</code> is the next value in the parition</li>
+</ul>
+</li>
+<li>a <em>between</em> paritition reduction function: <code>lambda a,b: (a[0] + b[0], a[1] + b[1]))</code> <ul>
+<li><code>a</code> is the same tuple as before, but not we're aggregating accross partitions, not just within them</li>
+<li><code>b</code> is a tuple <code>(nextPartitionSum, nextPartitionCount)</code></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class=" highlight hl-ipython2"><pre><span></span><span class="k">def</span> <span class="nf">id_post</span><span class="p">(</span><span class="n">line</span><span class="p">):</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="n">etree</span><span class="o">.</span><span class="n">fromstring</span><span class="p">(</span><span class="n">line</span><span class="p">)</span><span class="o">.</span><span class="n">attrib</span>
+        <span class="k">return</span> <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">'OwnerUserId'</span><span class="p">]),</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">except</span><span class="p">:</span> <span class="k">return</span> <span class="s1">'NA'</span>
+
+<span class="n">posts_by_id</span> <span class="o">=</span> <span class="n">allposts</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">id_post</span><span class="p">)</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">!=</span><span class="s1">'NA'</span><span class="p">)</span><span class="o">.</span><span class="n">reduceByKey</span><span class="p">(</span><span class="n">operator</span><span class="o">.</span><span class="n">add</span><span class="p">)</span>
+
+<span class="n">rep_by_tenure</span> <span class="o">=</span> <span class="n">allusers</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">user_reps</span><span class="p">)</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">!=</span><span class="s1">'NA'</span><span class="p">)</span>\
+                <span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">posts_by_id</span><span class="p">)</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]))</span>\
+                <span class="o">.</span><span class="n">aggregateByKey</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span> <span class="k">lambda</span> <span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">:</span> <span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">b</span><span class="p">,</span>    <span class="n">a</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span><span class="k">lambda</span> <span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">:</span> <span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">b</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">a</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">b</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>\
+                <span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">/</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]))</span>\
+                <span class="o">.</span><span class="n">takeOrdered</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">s</span><span class="p">:</span> <span class="o">-</span><span class="n">s</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Comparing-short-term-and-long-term-users">Comparing short-term and long-term users<a class="anchor-link" href="#Comparing-short-term-and-long-term-users">¶</a></h2><p>This distinction is a bit reductionist, but in practice we have to produce a well-defined metric for measuring some high-level, relatively abstract thing. Often times, there are numerous candidates for such metrics, and multiple implementations of each. These implementations are opportunities to tune the metric to determine the hyper-parameters (so to speak) which make them the most effective.</p>
+<p>Here we'll call a <code>vetran</code> user one that is <em>active</em> in a window of 100-150 days from their account creation. We'd like to compare the first post of vetran users to non-vetran users, and see if there is a difference. Active - will mean that they have made a post of any kind in the specified window (we could also consider votes to count, too).</p>
+<p><strong>NOTE</strong> I feel like this is a great opportunity to talk about something that is often not talked about in data-science posts, or even books, and that is the tool of hypothesis testing. I'm going to discuss this issue in a later post, however... so, stay tuned!</p>
+<h4 id="Extraction-Functions">Extraction Functions<a class="anchor-link" href="#Extraction-Functions">¶</a></h4><ul>
+<li><code>acct_creation</code> extracts <code>(Id, CreationDate)</code> from the <code>allUsers</code> dataset :: <code>user_list</code></li>
+<li><code>post_date</code> extracts (<code>OwnerUserId</code>, <code>postDate</code>) from the <code>allPosts</code> dataset :: <code>posts_by_users</code></li>
+<li><code>in_window</code> determines if any date in a list of postDates falls within 100-150 days of the owner's account creation from the join of <code>user_list</code> and <code>posts_by_users</code></li>
+<li><code>post_info</code> extracts <code>(OwnerUserId, CreationDate, Score, ViewCount, AnswerCount, FavoriteCount)</code> from <code>allPosts</code></li>
+</ul>
+<h4 id="Mapping/Reducing">Mapping/Reducing<a class="anchor-link" href="#Mapping/Reducing">¶</a></h4><p>Remember, what we're attempting to get is summary statistics about the first post from users in each group.</p>
+<ul>
+<li><code>acct_creation</code> is simply applied to <code>allUsers</code></li>
+<li><code>post_date</code> is applied to <code>allPosts</code>, and are then grouped by key (<code>userId</code>) to obtain a list of post dates by each user</li>
+<li>we then join the previous two applications to obtain <code>(Id, (CreationDate,[postDate list]))</code> and apply <code>in_window</code> to get <code>vet_status</code></li>
+<li><code>first_post_info</code> is obtained by mapping <code>allPosts</code> onto the summary space with the <code>post_info</code> function where they're then grouped by <code>OwnerUserId</code> and the values (a tuple of post info for all user posts) are list-ified, and we take the values associated with the post that has the earliest date, excluding <code>CreationDate</code>.</li>
+<li><code>vet_status</code> gets joined to <code>first_post_info</code> on <code>userId</code>, which is then discarded. The rest is just averaging the first post info by group, as in the previous problem. </li>
+</ul>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class=" highlight hl-ipython2"><pre><span></span><span class="n">user_list</span> <span class="o">=</span> <span class="n">allusers</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">acct_creation</span><span class="p">)</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">!=</span><span class="s1">'NA'</span><span class="p">)</span>
+<span class="n">posts_by_users</span> <span class="o">=</span> <span class="n">allposts</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">post_date</span><span class="p">)</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">!=</span><span class="s1">'NA'</span><span class="p">)</span><span class="o">.</span><span class="n">groupByKey</span><span class="p">()</span><span class="o">.</span><span class="n">mapValues</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
+<span class="n">vet_status</span> <span class="o">=</span> <span class="n">user_list</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">posts_by_users</span><span class="p">)</span><span class="o">.</span><span class="n">mapValues</span><span class="p">(</span><span class="n">in_window</span><span class="p">)</span>
+
+<span class="n">first_post_info</span> <span class="o">=</span> <span class="n">allposts</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">post_info</span><span class="p">)</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">!=</span><span class="s1">'NA'</span><span class="p">)</span><span class="o">.</span><span class="n">groupByKey</span><span class="p">()</span><span class="o">.</span><span class="n">mapValues</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>\
+                  <span class="o">.</span><span class="n">mapValues</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[[</span><span class="n">y</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">x</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="nb">min</span><span class="p">([</span><span class="n">y</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">x</span><span class="p">]))][</span><span class="mi">1</span><span class="p">:])</span>
+    
+<span class="n">vet_status</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">first_post_info</span><span class="p">)</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>\
+          <span class="o">.</span><span class="n">aggregateByKey</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span><span class="k">lambda</span> <span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">:</span> <span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="n">b</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">a</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">b</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">a</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">+</span><span class="n">b</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">a</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">+</span><span class="n">b</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="n">a</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">),</span>
+                                      <span class="k">lambda</span> <span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">:</span> <span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="n">b</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">a</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">b</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">a</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">+</span><span class="n">b</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">a</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">+</span><span class="n">b</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="n">a</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="o">+</span><span class="n">b</span><span class="p">[</span><span class="mi">4</span><span class="p">]))</span>\
+          <span class="o">.</span><span class="n">mapValues</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">/</span><span class="n">x</span><span class="p">[</span><span class="mi">4</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">/</span><span class="n">x</span><span class="p">[</span><span class="mi">4</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">/</span><span class="n">x</span><span class="p">[</span><span class="mi">4</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">/</span><span class="n">x</span><span class="p">[</span><span class="mi">4</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="mi">4</span><span class="p">]))</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Word2Vec-applications">Word2Vec applications<a class="anchor-link" href="#Word2Vec-applications">¶</a></h2><p>As promised, here we'll play around with <code>Word2Vec</code> and fimally get to some machine learning.</p>
+<h3 id="Terms-related-to-'ggplot2'">Terms related to 'ggplot2'<a class="anchor-link" href="#Terms-related-to-'ggplot2'">¶</a></h3><p>This is hella easy: <code>word2vec</code> has it's own <code>findSynonyms</code> method which employs cosine similarity. So, all that we have to do is extract the relevant portion of the <code>allPosts</code> dataset and train a <code>word2vect</code> model on them.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class=" highlight hl-ipython2"><pre><span></span><span class="kn">from</span> <span class="nn">pyspark.mllib.feature</span> <span class="kn">import</span> <span class="n">Word2Vec</span>
+
+<span class="k">def</span> <span class="nf">tags</span><span class="p">(</span><span class="n">line</span><span class="p">):</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="n">etree</span><span class="o">.</span><span class="n">fromstring</span><span class="p">(</span><span class="n">line</span><span class="p">)</span><span class="o">.</span><span class="n">attrib</span>
+        <span class="k">if</span> <span class="n">d</span><span class="p">[</span><span class="s1">'PostTypeId'</span><span class="p">]</span><span class="o">==</span><span class="s1">'1'</span><span class="p">:</span>        
+            <span class="k">return</span> <span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">'Tags'</span><span class="p">][</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">'><'</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span> <span class="k">return</span> <span class="s1">'NA'</span>
+    <span class="k">except</span><span class="p">:</span> <span class="k">return</span> <span class="s1">'NA'</span>
+    
+<span class="n">tag</span> <span class="o">=</span> <span class="n">fullposts</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">tags</span><span class="p">)</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">!=</span><span class="s1">'NA'</span><span class="p">)</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">Word2Vec</span><span class="p">()</span><span class="o">.</span><span class="n">setVectorSize</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span><span class="o">.</span><span class="n">setSeed</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">tag</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">findSynonyms</span><span class="p">(</span><span class="s1">'ggplot2'</span><span class="p">,</span> <span class="mi">25</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Predicting-tags-from-body-text">Predicting tags from body text<a class="anchor-link" href="#Predicting-tags-from-body-text">¶</a></h2><p>The punchline. Finally. As usual, there are a few steps to this problem. Technically this is a multi-label classification problem, but to simplify things we'll use a one-vs-all approach where we choose the top k most
+common tags and train k binary classifiers where the labels indicate the presence or absence of that tag. In doing so, we'll first need to find those most common tags: <code>tag_count</code> and <code>pop_tags</code> accomplishes this.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class=" highlight hl-ipython2"><pre><span></span><span class="kn">import</span> <span class="nn">dill</span><span class="o">,</span> <span class="nn">re</span>
+<span class="kn">from</span> <span class="nn">pyspark.sql</span> <span class="kn">import</span> <span class="n">Row</span>
+<span class="kn">from</span> <span class="nn">pyspark.ml</span> <span class="kn">import</span> <span class="n">Pipeline</span>
+<span class="kn">from</span> <span class="nn">pyspark.ml.classification</span> <span class="kn">import</span> <span class="n">LogisticRegression</span>
+<span class="kn">from</span> <span class="nn">pyspark.ml.feature</span> <span class="kn">import</span> <span class="n">HashingTF</span><span class="p">,</span> <span class="n">Tokenizer</span>
+
+
+<span class="n">train</span><span class="p">,</span> <span class="n">test</span> <span class="o">=</span> <span class="n">allposts</span><span class="o">.</span><span class="n">randomSplit</span><span class="p">([</span><span class="mf">0.9</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">],</span> <span class="n">seed</span><span class="o">=</span><span class="mi">12345</span><span class="p">)</span>
+
+
+<span class="sd">'''get tags, find 100 common used'''</span>
+<span class="k">def</span> <span class="nf">tag_count</span><span class="p">(</span><span class="n">line</span><span class="p">):</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="n">etree</span><span class="o">.</span><span class="n">fromstring</span><span class="p">(</span><span class="n">line</span><span class="p">)</span><span class="o">.</span><span class="n">attrib</span>
+        <span class="k">if</span> <span class="n">d</span><span class="p">[</span><span class="s1">'PostTypeId'</span><span class="p">]</span><span class="o">==</span><span class="s1">'1'</span><span class="p">:</span>        
+            <span class="k">for</span> <span class="n">tag</span> <span class="ow">in</span> <span class="n">d</span><span class="p">[</span><span class="s1">'Tags'</span><span class="p">][</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">'><'</span><span class="p">):</span>
+                <span class="k">return</span> <span class="p">(</span><span class="n">tag</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span> <span class="k">return</span> <span class="s1">'NA'</span>
+    <span class="k">except</span><span class="p">:</span> <span class="k">return</span> <span class="s1">'NA'</span>
+    
+<span class="n">pop_tags</span> <span class="o">=</span> <span class="n">train</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">tag_count</span><span class="p">)</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">!=</span><span class="s1">'NA'</span><span class="p">)</span><span class="o">.</span><span class="n">reduceByKey</span><span class="p">(</span><span class="n">operator</span><span class="o">.</span><span class="n">add</span><span class="p">)</span><span class="o">.</span><span class="n">takeOrdered</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="o">-</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<span class="n">pop_tags</span> <span class="o">=</span> <span class="n">sc</span><span class="o">.</span><span class="n">parallelize</span><span class="p">(</span><span class="n">pop_tags</span><span class="p">)</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+
+
+<span class="sd">'''to extract body of question and associated tags'''</span>
+<span class="n">w</span><span class="o">=</span><span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">"[\w']+"</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">body_tags</span><span class="p">(</span><span class="n">line</span><span class="p">):</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="n">etree</span><span class="o">.</span><span class="n">fromstring</span><span class="p">(</span><span class="n">line</span><span class="p">)</span><span class="o">.</span><span class="n">attrib</span>
+        <span class="k">if</span> <span class="n">d</span><span class="p">[</span><span class="s1">'PostTypeId'</span><span class="p">]</span><span class="o">==</span><span class="s1">'1'</span><span class="p">:</span>        
+            <span class="k">return</span> <span class="p">(</span><span class="s1">' '</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">word</span> <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">w</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">'Body'</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">';'</span><span class="p">,</span><span class="s1">' '</span><span class="p">))</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">word</span><span class="p">)</span><span class="o">></span><span class="mi">2</span><span class="p">]),</span> <span class="n">d</span><span class="p">[</span><span class="s1">'Tags'</span><span class="p">][</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">'><'</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span> <span class="k">return</span> <span class="s1">'NA'</span>
+    <span class="k">except</span><span class="p">:</span> <span class="k">return</span> <span class="s1">'NA'</span>
+
+<span class="n">testingdata</span> <span class="o">=</span> <span class="n">sqlContext</span><span class="o">.</span><span class="n">createDataFrame</span><span class="p">(</span><span class="n">test</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">body_tags</span><span class="p">)</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">!=</span><span class="s1">'NA'</span><span class="p">)</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">],)),</span><span class="n">schema</span><span class="o">=</span><span class="p">[</span><span class="s1">'text'</span><span class="p">])</span>
+<span class="n">testingdata</span> <span class="o">=</span> <span class="n">hashingTF</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">tokenizer</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">testingdata</span><span class="p">))</span>
+<span class="n">traintag</span> <span class="o">=</span> <span class="n">train</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">body_tags</span><span class="p">)</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">!=</span><span class="s1">'NA'</span><span class="p">)</span>
+
+<span class="n">tokenizer</span> <span class="o">=</span> <span class="n">Tokenizer</span><span class="p">(</span><span class="n">inputCol</span><span class="o">=</span><span class="s2">"text"</span><span class="p">,</span> <span class="n">outputCol</span><span class="o">=</span><span class="s2">"words"</span><span class="p">)</span>
+<span class="n">hashingTF</span> <span class="o">=</span> <span class="n">HashingTF</span><span class="p">(</span><span class="n">inputCol</span><span class="o">=</span><span class="s2">"words"</span><span class="p">,</span> <span class="n">outputCol</span><span class="o">=</span><span class="s2">"features"</span><span class="p">)</span>
+<span class="n">lr</span> <span class="o">=</span> <span class="n">LogisticRegression</span><span class="p">(</span><span class="n">maxIter</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">regParam</span><span class="o">=</span><span class="mf">0.01</span><span class="p">)</span>
+
+<span class="n">predictions</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="k">for</span> <span class="n">tag</span> <span class="ow">in</span> <span class="n">pop_tags</span><span class="p">:</span>
+    <span class="n">temp</span> <span class="o">=</span> <span class="n">sqlContext</span><span class="o">.</span><span class="n">createDataFrame</span><span class="p">(</span><span class="n">traintag</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">Row</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">if</span> <span class="n">tag</span> <span class="ow">in</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">else</span> <span class="n">Row</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">])),</span><span class="n">schema</span><span class="o">=</span><span class="p">[</span><span class="s1">'label'</span><span class="p">,</span><span class="s1">'text'</span><span class="p">])</span>
+    <span class="n">temp</span> <span class="o">=</span> <span class="n">hashingTF</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">tokenizer</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">temp</span><span class="p">))</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">lr</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">temp</span><span class="p">[[</span><span class="s1">'label'</span><span class="p">,</span><span class="s1">'features'</span><span class="p">]]</span><span class="o">.</span><span class="n">withColumn</span><span class="p">(</span><span class="s2">"label"</span><span class="p">,</span> <span class="n">temp</span><span class="o">.</span><span class="n">label</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">DoubleType</span><span class="p">())),</span><span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s1">'maxIter'</span><span class="p">:</span><span class="mi">10</span><span class="p">,</span> <span class="s1">'regParam'</span><span class="p">:</span><span class="mf">0.01</span><span class="p">})</span>
+    <span class="n">pred</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">testingdata</span><span class="p">)</span>
+    <span class="n">predictions</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">tag</span><span class="p">,</span><span class="n">predictions</span><span class="p">[</span><span class="n">tag</span><span class="p">]</span><span class="o">.</span><span class="n">rdd</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">probability</span><span class="p">)</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">collect</span><span class="p">()))</span>
+    
+<span class="n">dill</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">predictions</span><span class="p">,</span><span class="nb">open</span><span class="p">(</span><span class="s1">'OMG FILEPATH HERE'</span><span class="p">,</span><span class="s1">'w'</span><span class="p">))</span>
+</pre></div>
+</div>
 </div>
 </div>
 </div>
@@ -1116,6 +1490,38 @@ We'd also have data on battery usage, which we would use to build a model for ba
                     <h1>Other articles</h1>
                     <hr />
                     <ol id="posts-list" class="hfeed">
+
+            <li><article class="hentry">
+                <header>
+                    <h1><a href="https://lgoerl.github.io/suncode-hackathon.html" rel="bookmark"
+                           title="Permalink to SunCode Hackathon 2017">SunCode Hackathon 2017</a></h1>
+                </header>
+
+                <div class="entry-content">
+<footer class="post-info">
+        <abbr class="published" title="2017-04-09T08:21:00-07:00">
+                Published: Sun 09 April 2017
+        </abbr>
+
+        <address class="vcard author">
+                By                         <a class="url fn" href="https://lgoerl.github.io/author/lee-goerl.html">Lee Goerl</a>
+        </address>
+<p>In <a href="https://lgoerl.github.io/category/posts.html">posts</a>.</p>
+<p>tags: <a href="https://lgoerl.github.io/tag/personal.html">personal</a> <a href="https://lgoerl.github.io/tag/projects.html">projects</a> </p>
+</footer><!-- /.post-info -->                
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="The-Myth-of-Clean-Coal">The Myth of Clean Coal<a class="anchor-link" href="#The-Myth-of-Clean-Coal">¶</a></h1><h4 id="links">links<a class="anchor-link" href="#links">¶</a></h4><ul>
+<li><a href="https://github.com/BBischof/suncode-hackathon">github</a> </li>
+<li><a href="https://devpost.com/software/clean-coal-ljti0z">devpost</a></li>
+</ul>
+<p>  This weekend (Friday and Saturday, April 8th) I participated in <a href="https://suncode2017.devpost.com/">Powerhouse's SunCode 2017 Hackathon</a> in a team of 5: engineers Bryan Bischof and Jeff Larson, and industry professionals Caroline Whittinghill and Geoff Cotter. To moderate amusement and confusion of the rest of the room, we named ourselves CLEAN COAL - you know, the joke. This was my first hackathon, so I didn't really have any expectations, but to save you the suspense, I did leave pretty disappointed. Also, exhausted, smelly, and very dehydrated.</p>
+                <a class="readmore" href="https://lgoerl.github.io/suncode-hackathon.html">read more</a>
+                </div><!-- /.entry-content -->
+            </article></li>
 
             <li><article class="hentry">
                 <header>
