@@ -1449,7 +1449,7 @@ common tags and train k binary classifiers where the labels indicate the presenc
     (document.body || document.getElementsByTagName('head')[0]).appendChild(mathjaxscript);
 }
 &lt;/script&gt;
-</summary><category term="personal"></category><category term="projects"></category></entry><entry><title>MAXIMUM Likelihood</title><link href="https://lgoerl.github.io/MLE.html" rel="alternate"></link><published>2017-06-06T10:37:00-07:00</published><updated>2017-06-06T10:37:00-07:00</updated><author><name>me</name></author><id>tag:lgoerl.github.io,2017-06-06:MLE.html</id><summary type="html">&lt;style type="text/css"&gt;/*!
+</summary><category term="personal"></category><category term="projects"></category><category term="tutorials"></category><category term="code"></category><category term="spark"></category></entry><entry><title>MAXIMUM Likelihood</title><link href="https://lgoerl.github.io/MLE.html" rel="alternate"></link><published>2017-06-06T10:37:00-07:00</published><updated>2017-06-06T10:37:00-07:00</updated><author><name>me</name></author><id>tag:lgoerl.github.io,2017-06-06:MLE.html</id><summary type="html">&lt;style type="text/css"&gt;/*!
 *
 * IPython notebook
 *
